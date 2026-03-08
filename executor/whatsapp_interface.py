@@ -2,16 +2,15 @@
 WhatsApp interface for triggering test executions.
 
 Accepts commands via WhatsApp webhook to trigger and manage tests.
+Commands are routed to the real executor API via HTTP.
 """
 
-import os
 import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
 from enum import Enum
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
-from pydantic import BaseModel
+import httpx
 
 
 logger = logging.getLogger(__name__)
@@ -90,6 +89,8 @@ class WhatsAppCommandProcessor:
     """
     Processes WhatsApp commands and manages test executions.
 
+    All execution-related commands are forwarded to the executor HTTP API.
+
     Supported commands:
     - /run {job_id} - Execute a test
     - /status {job_id} - Check execution status
@@ -103,13 +104,13 @@ class WhatsAppCommandProcessor:
         Initialize command processor.
 
         Args:
-            executor_api_url: URL of executor API
-            jira_api_url: URL of Jira integrator API
+            executor_api_url: Base URL of executor API (e.g. http://executor:8001)
+            jira_api_url: Base URL of Jira integrator API
         """
         self.executor_api_url = executor_api_url.rstrip("/")
         self.jira_api_url = jira_api_url.rstrip("/")
 
-        # Store active executions (in production, use Redis/database)
+        # Mirror of executor's active_executions for mapping phone → job_id
         self.active_executions: Dict[str, Dict[str, Any]] = {}
 
     async def process_command(
@@ -144,7 +145,7 @@ class WhatsAppCommandProcessor:
                 return await self._handle_results_command(message.phone_number, argument)
 
             elif command == WhatsAppCommand.LIST:
-                return self._handle_list_command(message.phone_number)
+                return await self._handle_list_command(message.phone_number)
 
             else:
                 return self._error_response(
@@ -197,11 +198,11 @@ Available commands:
         job_id: Optional[str],
     ) -> WhatsAppResponse:
         """
-        Handle /run command.
+        Handle /run command — calls the executor API to start test execution.
 
         Args:
-            recipient: Phone number
-            job_id: Job ID to execute
+            recipient: Sender phone number
+            job_id: Job ID (also used as script_path lookup)
 
         Returns:
             Response message
@@ -212,26 +213,40 @@ Available commands:
                 "Usage: /run {job_id}\n\nExample: /run test-123"
             )
 
-        # In production, you would:
-        # 1. Look up job details from database
-        # 2. Parse script to extract Jira ticket
-        # 3. Trigger execution via API
+        payload = {
+            "job_id": job_id,
+            "jira_ticket": job_id,        # Caller can pass a full ticket ID as job_id
+            "script_path": job_id,        # Runner will search shared/scripts/ by name
+            "timeout_seconds": 300,
+            "browser_headless": True,
+            "trace_enabled": True,
+        }
 
-        # For now, simulate execution
-        execution_id = f"exec-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                resp = await client.post(
+                    f"{self.executor_api_url}/api/v1/execute",
+                    json=payload,
+                )
+                resp.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                detail = exc.response.json().get("detail", str(exc))
+                return self._error_response(recipient, f"Executor rejected request: {detail}")
+            except httpx.RequestError as exc:
+                return self._error_response(recipient, f"Could not reach executor: {exc}")
 
+        data = resp.json()
         self.active_executions[job_id] = {
-            "status": "running",
-            "execution_id": execution_id,
-            "started_at": datetime.utcnow().isoformat(),
             "phone_number": recipient,
+            "started_at": datetime.utcnow().isoformat(),
         }
 
         response = f"""✅ *Test Execution Started*
 
 Job ID: {job_id}
-Execution ID: {execution_id}
-Started at: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}
+Status: {data.get('status', 'accepted').upper()}
+Jira Ticket: {data.get('jira_ticket', job_id)}
+Started at: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC
 
 🔍 I'll monitor the test and notify you when complete.
 
@@ -246,10 +261,10 @@ Use `/status {job_id}` to check progress.
         job_id: Optional[str],
     ) -> WhatsAppResponse:
         """
-        Handle /status command.
+        Handle /status command — queries the executor API for live status.
 
         Args:
-            recipient: Phone number
+            recipient: Sender phone number
             job_id: Job ID to check
 
         Returns:
@@ -261,30 +276,52 @@ Use `/status {job_id}` to check progress.
                 "Usage: /status {job_id}\n\nExample: /status test-123"
             )
 
-        execution = self.active_executions.get(job_id)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                resp = await client.get(
+                    f"{self.executor_api_url}/api/v1/status/{job_id}"
+                )
+                if resp.status_code == 404:
+                    return self._error_response(
+                        recipient,
+                        f"Job '{job_id}' not found. Use /list to see all executions."
+                    )
+                resp.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                detail = exc.response.json().get("detail", str(exc))
+                return self._error_response(recipient, f"Executor error: {detail}")
+            except httpx.RequestError as exc:
+                return self._error_response(recipient, f"Could not reach executor: {exc}")
 
-        if not execution:
-            return self._error_response(
-                recipient,
-                f"Job '{job_id}' not found. Use /list to see all executions."
-            )
+        data = resp.json()
+        status = data.get("status", "unknown").upper()
+        duration = data.get("duration_seconds", 0)
 
-        status = execution.get("status", "unknown")
-        started_at = execution.get("started_at", "Unknown")
+        STATUS_EMOJI = {
+            "RUNNING": "⏳",
+            "COMPLETED": "✅",
+            "FAILED": "❌",
+            "TIMEOUT": "⏰",
+        }
+        emoji = STATUS_EMOJI.get(status, "❓")
 
         response = f"""📊 *Execution Status*
 
 Job ID: {job_id}
-Status: {status.upper()}
-Started: {started_at}
+Status: {emoji} {status}
+Duration: {duration:.1f}s
 """
 
-        if status == "running":
+        if status == "RUNNING":
             response += "\n⏳ Test is still running..."
-        elif status == "completed":
-            response += f"\n✅ Test completed successfully!\nUse `/results {job_id}` for details."
-        elif status == "failed":
-            response += f"\n❌ Test failed. Use `/results {job_id}` for error details."
+        elif status == "COMPLETED":
+            test_result = data.get("test_result", "UNKNOWN")
+            health_grade = data.get("health_grade", "UNKNOWN")
+            response += f"\n✅ Complete — Result: {test_result} | Health: {health_grade}"
+            response += f"\nUse `/results {job_id}` for details."
+        elif status in ("FAILED", "TIMEOUT"):
+            error = data.get("error", "Unknown error")
+            response += f"\n❌ {status}: {error}"
 
         return WhatsAppResponse(recipient=recipient, message=response)
 
@@ -294,10 +331,10 @@ Started: {started_at}
         job_id: Optional[str],
     ) -> WhatsAppResponse:
         """
-        Handle /results command.
+        Handle /results command — fetches the full result from the executor API.
 
         Args:
-            recipient: Phone number
+            recipient: Sender phone number
             job_id: Job ID to get results for
 
         Returns:
@@ -309,41 +346,58 @@ Started: {started_at}
                 "Usage: /results {job_id}\n\nExample: /results test-123"
             )
 
-        execution = self.active_executions.get(job_id)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                resp = await client.get(
+                    f"{self.executor_api_url}/api/v1/result/{job_id}"
+                )
+                if resp.status_code == 404:
+                    return self._error_response(
+                        recipient,
+                        f"Job '{job_id}' not found. Use /list to see all executions."
+                    )
+                if resp.status_code == 400:
+                    return WhatsAppResponse(
+                        recipient=recipient,
+                        message=f"⏳ Job '{job_id}' is still running.\nUse `/status {job_id}` to check progress."
+                    )
+                resp.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                detail = exc.response.json().get("detail", str(exc))
+                return self._error_response(recipient, f"Executor error: {detail}")
+            except httpx.RequestError as exc:
+                return self._error_response(recipient, f"Could not reach executor: {exc}")
 
-        if not execution:
-            return self._error_response(
-                recipient,
-                f"Job '{job_id}' not found. Use /list to see all executions."
-            )
+        data = resp.json()
+        test_result = data.get("test_result", "UNKNOWN")
+        health_grade = data.get("health_grade", "UNKNOWN")
+        duration = data.get("duration_seconds", 0)
+        metrics = data.get("metrics", {})
+        evidence = data.get("evidence_package", {})
+        jira_ticket = data.get("jira_ticket", "N/A")
 
-        if execution.get("status") == "running":
-            return WhatsAppResponse(
-                recipient=recipient,
-                message=f"⏳ Job '{job_id}' is still running.\nUse `/status {job_id}` to check progress."
-            )
-
-        # In production, fetch actual results from executor API
-        # For now, provide a template response
+        RESULT_EMOJI = {"PASS": "✅", "FAIL": "❌", "ERROR": "💥", "SKIPPED": "⏭️"}
+        GRADE_EMOJI = {"HEALTHY": "💚", "WARNING": "⚠️", "CRITICAL": "🔴"}
 
         response = f"""📋 *Execution Results*
 
 Job ID: {job_id}
-Execution ID: {execution.get('execution_id', 'N/A')}
+Execution ID: {data.get('execution_id', 'N/A')}
 
-**Test Result:** ✅ PASS
-**Health Grade:** 💚 HEALTHY
-**Duration:** 2.3s
+*Test Result:* {RESULT_EMOJI.get(test_result, '❓')} {test_result}
+*Health Grade:* {GRADE_EMOJI.get(health_grade, '❓')} {health_grade}
+*Duration:* {duration:.1f}s
 
-**Metrics:**
-• Peak Memory: 234 MB
-• Peak CPU: 45%
-• Network Errors: 0
-• Console Errors: 0
+*Metrics:*
+• Peak Memory: {metrics.get('peak_memory_mb', 0):.0f} MB
+• Peak CPU: {metrics.get('peak_cpu_percent', 0):.0f}%
+• Network Errors: {metrics.get('network_errors', 0)}
+• Console Errors: {metrics.get('console_errors', 0)}
 
-**Evidence:**
-• Results posted to Jira: {execution.get('jira_ticket', 'QA-XXX')}
-• Trace file: {execution.get('execution_id', 'N/A')}/trace.zip
+*Evidence:*
+• Jira Ticket: {jira_ticket}
+• Trace: {evidence.get('trace', 'N/A')}
+• Logs: {evidence.get('logs', 'N/A')}
 
 ---
 Full details available in Jira ticket.
@@ -351,37 +405,26 @@ Full details available in Jira ticket.
 
         return WhatsAppResponse(recipient=recipient, message=response)
 
-    def _handle_list_command(self, recipient: str) -> WhatsAppResponse:
+    async def _handle_list_command(self, recipient: str) -> WhatsAppResponse:
         """
-        Handle /list command.
+        Handle /list command — queries executor API for all active executions.
 
         Args:
-            recipient: Phone number
+            recipient: Sender phone number
 
         Returns:
-            Response message with all executions
+            Response message with all known executions
         """
+        # Executor doesn't expose a /list endpoint yet; fall back to local cache
         if not self.active_executions:
             return WhatsAppResponse(
                 recipient=recipient,
                 message="📋 No executions found.\n\nUse /run {job_id} to start a test."
             )
 
-        response = "📋 *Active Executions*\n\n"
-
-        for job_id, execution in self.active_executions.items():
-            status = execution.get("status", "unknown")
-            started = execution.get("started_at", "Unknown")
-
-            status_emoji = {
-                "running": "🔄",
-                "completed": "✅",
-                "failed": "❌",
-            }.get(status, "❓")
-
-            response += f"{status_emoji} *{job_id}*\n"
-            response += f"   Status: {status.upper()}\n"
-            response += f"   Started: {started}\n\n"
+        response = "📋 *Known Executions*\n\n"
+        for job_id in self.active_executions:
+            response += f"• {job_id} — use `/status {job_id}` for live status\n"
 
         return WhatsAppResponse(recipient=recipient, message=response)
 

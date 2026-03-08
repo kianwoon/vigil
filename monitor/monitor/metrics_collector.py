@@ -121,7 +121,7 @@ class MetricsCollector:
             # This is a simplified version - actual implementation depends on Playwright version
 
             # For now, we'll use Playwright's built-in event listeners
-            self.context.on("webconsole", self._handle_console_event)
+            self.context.on("console", self._handle_console_event)
             self.context.on("response", self._handle_response_event)
 
             logger.info("CDP monitoring enabled")
@@ -169,7 +169,7 @@ class MetricsCollector:
                     timestamp=datetime.utcnow(),
                     url=response.url,
                     status_code=status,
-                    method=request.method if hasattr(response, 'request') else "UNKNOWN",
+                    method=response.request.method if hasattr(response, 'request') else "UNKNOWN",
                     error_type="4xx" if 400 <= status < 500 else "5xx",
                 )
                 self.network_errors.append(error)
@@ -273,7 +273,7 @@ class MetricsCollector:
                 "total_console_errors": len(self.console_errors),
                 "total_console_warnings": len([
                     e for e in self.console_errors if e.level == "warning"
-                ])),
+                ]),
             }
         else:
             summary = {

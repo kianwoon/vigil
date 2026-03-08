@@ -288,7 +288,7 @@ class CPUDetection:
     def __str__(self) -> str:
         """String representation."""
         if self.is_abnormal:
-            return f"High CPU detected: peak {self peak_percent:.1f}%, avg {self.average_percent:.1f}%, {self.idle_high_cpu_seconds:.1f}s at >80% during idle"
+            return f"High CPU detected: peak {self.peak_percent:.1f}%, avg {self.average_percent:.1f}%, {self.idle_high_cpu_seconds:.1f}s at >80% during idle"
         return f"CPU normal: peak {self.peak_percent:.1f}%, avg {self.average_percent:.1f}%"
 
 
