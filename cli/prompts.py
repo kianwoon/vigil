@@ -35,7 +35,7 @@ DEFAULTS = {
     "JIRA_BASE_URL": "https://yourcompany.atlassian.net",
     "JIRA_PROJECT_KEY": "QA",
     # Services
-    "SHARED_VOLUME_PATH": "~/qa-swarm-shared",
+    "SHARED_VOLUME_PATH": "~/vigil-shared",
     "EXECUTOR_HOST": "0.0.0.0",
     "EXECUTOR_PORT": "8001",
     "MONITOR_HOST": "0.0.0.0",
@@ -56,7 +56,7 @@ DEFAULTS = {
     "EXECUTION_TIMEOUT_SECONDS": "300",
     "BROWSER_HEADLESS": "true",
     # Docker
-    "DOCKER_NETWORK": "nanoclaw_network",
+    "DOCKER_NETWORK": "vigil_network",
 }
 
 

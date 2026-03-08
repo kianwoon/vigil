@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="NanoClaw Monitor API",
-    description="Browser health monitoring sidecar for NanoClaw executor",
+    title="Vigil Monitor API",
+    description="Browser health monitoring sidecar for Vigil executor",
     version="1.0.0",
 )
 
@@ -52,7 +52,7 @@ async def startup_event():
     """Initialize monitor service on startup."""
     global collector, websocket_server
 
-    logger.info("Starting NanoClaw Monitor service")
+    logger.info("Starting Vigil Monitor service")
 
     # Initialize metrics collector
     collector = MetricsCollector(
@@ -69,7 +69,7 @@ async def startup_event():
     # Start WebSocket server
     await websocket_server.start()
 
-    logger.info("NanoClaw Monitor service started")
+    logger.info("Vigil Monitor service started")
 
 
 @app.on_event("shutdown")
@@ -77,7 +77,7 @@ async def shutdown_event():
     """Cleanup on shutdown."""
     global collector, websocket_server
 
-    logger.info("Shutting down NanoClaw Monitor service")
+    logger.info("Shutting down Vigil Monitor service")
 
     # Stop metrics collector
     if collector and collector.is_collecting:
@@ -87,7 +87,7 @@ async def shutdown_event():
     if websocket_server:
         await websocket_server.stop()
 
-    logger.info("NanoClaw Monitor service stopped")
+    logger.info("Vigil Monitor service stopped")
 
 
 # API endpoints
@@ -96,7 +96,7 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "nanoclaw-monitor",
+        "service": "vigil-monitor",
         "timestamp": datetime.utcnow().isoformat(),
         "collector_active": collector.is_collecting if collector else False,
         "websocket_clients": len(websocket_server.clients) if websocket_server else 0,

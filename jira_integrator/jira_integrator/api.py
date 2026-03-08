@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="NanoClaw Jira Integrator API",
+    title="Vigil Jira Integrator API",
     description="Posts test results and evidence packages to Jira",
     version="1.0.0",
 )
@@ -60,7 +60,7 @@ async def startup_event():
     """Initialize Jira integrator service on startup."""
     global jira_client, formatter, packager
 
-    logger.info("Starting NanoClaw Jira Integrator service")
+    logger.info("Starting Vigil Jira Integrator service")
 
     # Initialize Jira client
     jira_client = JiraClient()
@@ -72,7 +72,7 @@ async def startup_event():
     output_dir = os.getenv("SHARED_RESULTS_DIR", "./shared/results")
     packager = EvidencePackager(output_dir)
 
-    logger.info("NanoClaw Jira Integrator service started")
+    logger.info("Vigil Jira Integrator service started")
 
 
 @app.on_event("shutdown")
@@ -80,12 +80,12 @@ async def shutdown_event():
     """Cleanup on shutdown."""
     global jira_client
 
-    logger.info("Shutting down NanoClaw Jira Integrator service")
+    logger.info("Shutting down Vigil Jira Integrator service")
 
     if jira_client:
         await jira_client.close()
 
-    logger.info("NanoClaw Jira Integrator service stopped")
+    logger.info("Vigil Jira Integrator service stopped")
 
 
 # API endpoints
@@ -94,7 +94,7 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "nanoclaw-jira-integrator",
+        "service": "vigil-jira-integrator",
         "timestamp": datetime.utcnow().isoformat(),
         "jira_configured": jira_client is not None,
     }

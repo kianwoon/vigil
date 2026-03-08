@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="NanoClaw Teams Integration API",
-    description="Microsoft Teams bot interface for NanoClaw Test Executor",
+    title="Vigil Teams Integration API",
+    description="Microsoft Teams bot interface for Vigil Test Executor",
     version="1.0.0",
 )
 
@@ -48,7 +48,7 @@ async def startup_event():
     """Initialize Teams service on startup."""
     global teams_bot, command_processor
 
-    logger.info("Starting NanoClaw Teams Integration service")
+    logger.info("Starting Vigil Teams Integration service")
 
     # Initialize command processor
     from command_processor import CommandProcessor
@@ -66,14 +66,14 @@ async def startup_event():
 
     teams_bot = TeamsBot(command_processor=command_processor)
 
-    logger.info("NanoClaw Teams Integration service started")
+    logger.info("Vigil Teams Integration service started")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown."""
-    logger.info("Shutting down NanoClaw Teams Integration service")
-    logger.info("NanoClaw Teams Integration service stopped")
+    logger.info("Shutting down Vigil Teams Integration service")
+    logger.info("Vigil Teams Integration service stopped")
 
 
 # API endpoints
@@ -82,7 +82,7 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "nanoclaw-teams-integration",
+        "service": "vigil-teams-integration",
         "timestamp": datetime.utcnow().isoformat(),
         "bot_configured": teams_bot is not None,
     }

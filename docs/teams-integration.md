@@ -1,6 +1,6 @@
 # MS Teams Integration Guide
 
-Complete guide for setting up and configuring Microsoft Teams integration with NanoClaw Test Executor.
+Complete guide for setting up and configuring Microsoft Teams integration with Vigil Test Executor.
 
 ---
 
@@ -21,7 +21,7 @@ Complete guide for setting up and configuring Microsoft Teams integration with N
 
 ## Overview
 
-The NanoClaw Teams integration allows you to trigger test executions, monitor status, and receive results directly within Microsoft Teams. The bot supports both channel conversations and 1:1 chats, with rich Adaptive Cards providing visual health status indicators.
+The Vigil Teams integration allows you to trigger test executions, monitor status, and receive results directly within Microsoft Teams. The bot supports both channel conversations and 1:1 chats, with rich Adaptive Cards providing visual health status indicators.
 
 ### Key Features
 
@@ -36,7 +36,7 @@ The NanoClaw Teams integration allows you to trigger test executions, monitor st
 ```
 Teams Client
     │
-    ├─► /run {job_id}      ──► Teams Bot (Port 8004)
+    ├─► /run {job_id}      ──► Vigil Bot (Port 8004)
     ├─► /status {job_id}   ──►       │
     ├─► /results {job_id}  ──►       ├──► Command Processor
     ├─► /list             ──►       │        │
@@ -53,7 +53,7 @@ Before setting up the Teams integration, ensure you have:
 - **Azure Account** with active subscription
 - **Microsoft Teams Admin** permissions (for org-wide app deployment)
 - **Docker** installed on the host machine
-- **NanoClaw Executor** already configured and running
+- **Vigil Executor** already configured and running
 - **Python 3.11+** (for local development)
 
 ### Required Accounts
@@ -62,7 +62,7 @@ Before setting up the Teams integration, ensure you have:
 |---------|---------|-------------|
 | Azure | Bot registration | Create Azure Bot resource |
 | Teams App Studio | App manifest | Create and upload app package |
-| NanoClaw Executor | Test execution | API access |
+| Vigil Executor | Test execution | API access |
 
 ---
 
@@ -74,7 +74,7 @@ Before setting up the Teams integration, ensure you have:
 2. Search for **"Azure Bot"** in the search bar
 3. Click **Create** → **Azure Bot**
 4. Fill in the required fields:
-   - **Bot handle**: `nanoclaw-test-executor` (must be globally unique)
+   - **Bot handle**: `vigil-test-executor` (must be globally unique)
    - **Pricing tier**: Free (F0) or Standard (S1)
    - **Type of App**: Multi-tenant
    - **Location**: Choose nearest region
@@ -160,7 +160,7 @@ services:
     build:
       context: ../teams
       dockerfile: ../docker/Dockerfile.teams
-    container_name: nanoclaw-teams
+    container_name: vigil-teams
     ports:
       - "8004:8004"
     environment:
@@ -170,7 +170,7 @@ services:
       - EXECUTOR_API_URL=http://executor:8001
       - JIRA_API_URL=http://jira-integrator:8003
     networks:
-      - nanoclaw-network
+      - vigil-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
@@ -243,8 +243,8 @@ services:
    - Open App Studio
    - Click **Manifest editor** → **Create a new app**
    - Fill in basic information:
-     - **Short name**: NanoClaw Executor
-     - **Full name**: NanoClaw Test Executor Bot
+     - **Short name**: Vigil Executor
+     - **Full name**: Vigil Test Executor Bot
      - **Version**: 1.0.0
      - **Description**: Automated test execution with health monitoring
      - **Developer name**: Your Team Name
@@ -354,7 +354,7 @@ Console Errors: 0
 
 ## Adaptive Cards
 
-The NanoClaw Teams bot uses Microsoft Adaptive Cards to provide rich, interactive responses.
+The Vigil Teams bot uses Microsoft Adaptive Cards to provide rich, interactive responses.
 
 ### Health Grade Badges
 
@@ -548,7 +548,7 @@ curl http://localhost:8003/health
 ```yaml
 # Recommended Docker network configuration
 networks:
-  nanoclaw-network:
+  vigil-network:
     driver: bridge
     internal: false  # Set to true for complete isolation
     ipam:
@@ -615,9 +615,9 @@ TEAMS_NOTIFY_ON_FAILURE=true
 ```bash
 # Deploy to ACI
 az container create \
-  --resource-group nanoclaw-rg \
-  --name nanoclaw-teams \
-  --image your-registry/nanoclaw-teams:latest \
+  --resource-group vigil-rg \
+  --name vigil-teams \
+  --image your-registry/vigil-teams:latest \
   --cpu 1 \
   --memory 1 \
   --ports 8004 \
@@ -633,20 +633,20 @@ az container create \
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nanoclaw-teams
+  name: vigil-teams
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: nanoclaw-teams
+      app: vigil-teams
   template:
     metadata:
       labels:
-        app: nanoclaw-teams
+        app: vigil-teams
     spec:
       containers:
       - name: teams
-        image: your-registry/nanoclaw-teams:latest
+        image: your-registry/vigil-teams:latest
         ports:
         - containerPort: 8004
         env:

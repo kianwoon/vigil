@@ -29,8 +29,8 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
-    title="NanoClaw Executor API",
-    description="Intelligent test executor with health monitoring",
+    title="Vigil Executor API",
+    description="Runtime health auditor with health monitoring",
     version="1.0.0",
 )
 
@@ -67,7 +67,7 @@ async def startup_event():
     """Initialize executor service on startup."""
     global runner, whatsapp_processor
 
-    logger.info("Starting NanoClaw Executor service")
+    logger.info("Starting Vigil Executor service")
 
     # Initialize test runner
     shared_scripts = os.getenv("SHARED_SCRIPTS_DIR", "./shared/scripts")
@@ -89,13 +89,13 @@ async def startup_event():
         jira_api_url=jira_url,
     )
 
-    logger.info("NanoClaw Executor service started")
+    logger.info("Vigil Executor service started")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown."""
-    logger.info("Shutting down NanoClaw Executor service")
+    logger.info("Shutting down Vigil Executor service")
 
 
 # API endpoints
@@ -104,7 +104,7 @@ async def health_check():
     """Health check endpoint."""
     return {
         "status": "healthy",
-        "service": "nanoclaw-executor",
+        "service": "vigil-executor",
         "timestamp": datetime.utcnow().isoformat(),
         "active_executions": len(active_executions),
     }
@@ -371,7 +371,7 @@ async def whatsapp_health_check():
     """WhatsApp interface health check."""
     return {
         "status": "healthy" if whatsapp_processor else "unavailable",
-        "service": "nanoclaw-whatsapp-interface",
+        "service": "vigil-whatsapp-interface",
         "timestamp": datetime.utcnow().isoformat(),
         "active_executions": len(whatsapp_processor.active_executions) if whatsapp_processor else 0,
     }
@@ -381,9 +381,9 @@ async def whatsapp_health_check():
 async def root():
     """Root endpoint with API information."""
     return {
-        "service": "NanoClaw Executor",
+        "service": "Vigil Executor",
         "version": "1.0.0",
-        "description": "Intelligent test executor with health monitoring",
+        "description": "Runtime health auditor with health monitoring",
         "endpoints": {
             "health": "/health",
             "execute": "POST /api/v1/execute",

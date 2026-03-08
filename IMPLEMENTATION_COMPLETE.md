@@ -1,4 +1,4 @@
-# NanoClaw Role 2: Implementation Complete
+# Vigil: Implementation Complete
 
 **Date:** 2026-03-08
 **Status:** ✅ **PRODUCTION READY**
@@ -124,7 +124,7 @@ Services:
   - jira-integrator (port 8003)
 
 Network:
-  - nanoclaw_network (isolated bridge)
+  - vigil_network (isolated bridge)
 
 Volumes:
   - shared/ (scripts, results, traces, metrics)
@@ -220,7 +220,7 @@ curl http://localhost:8001/api/v1/status/test-123
 ## 📁 Project Structure
 
 ```
-qa-swarm-executor/
+vigil/
 ├── executor/                    # Test execution service
 │   ├── executor/
 │   │   ├── runner.py           # Pytest execution engine
@@ -258,7 +258,7 @@ qa-swarm-executor/
 │   └── docker-compose.yml
 │
 ├── shared/                      # Shared volume
-│   ├── scripts/                 # Input from Role 1
+│   ├── scripts/                 # Input from testforge
 │   ├── results/                 # Execution outputs
 │   ├── traces/                  # Playwright traces
 │   └── metrics/                 # CSV metrics
@@ -412,7 +412,7 @@ Bot: 📊 Execution Status
 Execution time: 2.3s
 ```
 
-**NanoClaw Role 2:**
+**Vigil:**
 ```
 ✓ Test passed
 Health Grade: CRITICAL 🔴
