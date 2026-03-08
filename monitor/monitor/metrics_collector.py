@@ -61,6 +61,7 @@ class MetricsCollector:
         # Metric buffers
         self.network_errors: List[NetworkError] = []
         self.console_errors: List[ConsoleError] = []
+        self.console_warnings: List[ConsoleError] = []  # Separate list for warnings
         self.metrics_buffer: List[BrowserMetrics] = []
 
     async def start(self, browser: Browser, context: BrowserContext) -> None:
@@ -121,8 +122,9 @@ class MetricsCollector:
             # This is a simplified version - actual implementation depends on Playwright version
 
             # For now, we'll use Playwright's built-in event listeners
-            self.context.on("console", self._handle_console_event)
-            self.context.on("response", self._handle_response_event)
+            # Note: Playwright's context.on() expects sync callbacks, so we wrap async handlers
+            self.context.on("console", lambda msg: asyncio.ensure_future(self._handle_console_event(msg)))
+            self.context.on("response", lambda resp: asyncio.ensure_future(self._handle_response_event(resp)))
 
             logger.info("CDP monitoring enabled")
 
@@ -150,6 +152,7 @@ class MetricsCollector:
                 self.console_errors.append(console_msg)
                 logger.warning(f"Console error: {msg.text}")
             elif msg.type == "warning":
+                self.console_warnings.append(console_msg)
                 logger.debug(f"Console warning: {msg.text}")
 
         except Exception as e:
@@ -271,9 +274,7 @@ class MetricsCollector:
                 "avg_cpu_percent": sum(cpu_values) / len(cpu_values) if cpu_values else 0,
                 "total_network_errors": len(self.network_errors),
                 "total_console_errors": len(self.console_errors),
-                "total_console_warnings": len([
-                    e for e in self.console_errors if e.level == "warning"
-                ]),
+                "total_console_warnings": len(self.console_warnings),
             }
         else:
             summary = {
@@ -324,5 +325,6 @@ class MetricsCollector:
         """Clear error and metrics buffers."""
         self.network_errors.clear()
         self.console_errors.clear()
+        self.console_warnings.clear()
         self.metrics_buffer.clear()
         logger.info("Metrics buffers cleared")
