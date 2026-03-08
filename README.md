@@ -111,6 +111,24 @@ Trigger tests via WhatsApp command.
 - `/status {job_id}` - Check execution status
 - `/results {job_id}` - Get evidence package link
 
+### 6. MS Teams Integration
+Trigger tests and monitor results directly in Microsoft Teams.
+
+**Commands:**
+- `/run {job_id}` - Execute specific test
+- `/status {job_id}` - Check execution status
+- `/results {job_id}` - Get evidence package link
+- `/list` - List all executions
+- `/help` - Show help message
+
+**Features:**
+- Rich Adaptive Cards with health grade badges (HEALTHY/WARNING/CRITICAL)
+- Real-time status updates with progress indicators
+- Evidence package sharing with Jira integration
+- Support for both channel conversations and 1:1 chats
+
+See [Teams Integration Guide](docs/teams-integration.md) for detailed setup instructions.
+
 ---
 
 ## Quick Start
@@ -161,6 +179,7 @@ docker-compose up -d
 - `executor` - Test execution engine (port 8001)
 - `monitor` - Health monitoring sidecar (port 8002)
 - `jira-integrator` - Jira update service (port 8003)
+- `teams` - MS Teams integration service (port 8004)
 
 ### 4. Execute a Test
 
@@ -172,6 +191,11 @@ curl -X POST http://localhost:8001/api/v1/execute \
 ```
 
 **Via WhatsApp:**
+```
+/run abc-123
+```
+
+**Via MS Teams:**
 ```
 /run abc-123
 ```
@@ -471,6 +495,16 @@ qa-swarm-executor/
 │   ├── requirements.txt
 │   └── tests/
 │
+├── teams/                       # MS Teams integration
+│   ├── teams/
+│   │   ├── teams_bot.py        # Bot Framework handler
+│   │   ├── command_processor.py # Command parsing and routing
+│   │   ├── adaptive_cards.py    # Rich card formatting
+│   │   ├── api.py              # Teams API endpoints
+│   │   └── main.py
+│   ├── requirements.txt
+│   └── tests/
+│
 ├── shared/                      # Shared volume
 │   ├── scripts/                 # Input from Role 1
 │   ├── results/                 # Execution outputs
@@ -481,12 +515,14 @@ qa-swarm-executor/
 │   ├── Dockerfile.executor
 │   ├── Dockerfile.monitor
 │   ├── Dockerfile.jira
+│   ├── Dockerfile.teams
 │   └── docker-compose.yml
 │
 ├── scripts/
 │   └── setup.sh
 │
 ├── docs/
+│   ├── teams-integration.md    # Teams setup guide
 │   ├── plans/
 │   └── api/
 │

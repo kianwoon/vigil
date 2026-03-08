@@ -123,6 +123,51 @@ services:
       retries: 3
       start_period: 5s
 
+  # Teams Service - MS Teams integration bot
+  teams:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.teams
+    container_name: nanoclaw_teams
+    ports:
+      - "${TEAMS_PORT:-8004}:8004"
+    environment:
+      # Service configuration
+      - TEAMS_HOST=0.0.0.0
+      - TEAMS_PORT=8004
+      - TEAMS_LOG_LEVEL=${TEAMS_LOG_LEVEL:-INFO}
+
+      # MS Teams configuration
+      - TEAMS_APP_ID=${TEAMS_APP_ID}
+      - TEAMS_APP_PASSWORD=${TEAMS_APP_PASSWORD}
+
+      # Internal service URLs
+      - EXECUTOR_API_URL=http://executor:8001
+      - JIRA_API_URL=http://jira-integrator:8003
+
+      # Shared volume paths
+      - SHARED_RESULTS_DIR=/shared/results
+
+    volumes:
+      # Mount shared volume for results
+      - ${SHARED_VOLUME_PATH:-./shared}:/shared
+
+    networks:
+      - nanoclaw_network
+
+    depends_on:
+      - executor
+      - jira-integrator
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
 networks:
   nanoclaw_network:
     driver: bridge
