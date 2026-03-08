@@ -133,6 +133,30 @@ See [Teams Integration Guide](docs/teams-integration.md) for detailed setup inst
 
 ## Quick Start
 
+### Option 1: Interactive Setup Wizard (Recommended)
+
+The easiest way to configure the executor is using the interactive setup wizard:
+
+```bash
+cd /Users/kianwoonwong/Downloads/qa-swarm-executor
+
+# Install CLI dependencies
+pip install -r requirements-cli.txt
+
+# Run the setup wizard
+./scripts/setup-wizard.sh
+# or
+python -m cli.setup
+```
+
+The wizard will:
+- Let you select which services to configure (Jira, Teams, WhatsApp)
+- Validate all inputs in real-time
+- Test connections before saving
+- Automatically generate your `.env` file
+
+### Option 2: Manual Configuration
+
 ### 1. Clone and Setup
 
 ```bash
@@ -539,6 +563,38 @@ qa-swarm-executor/
 ## Development
 
 See `docs/plans/` for detailed implementation plans.
+
+---
+
+## CLI Commands
+
+### Setup Wizard
+
+```bash
+# Interactive configuration
+python -m cli.setup
+
+# Or use the shell script
+./scripts/setup-wizard.sh
+```
+
+**Features:**
+- Service selection (Jira, Teams, WhatsApp)
+- Input validation
+- Connection testing
+- Secure token input (hidden)
+- Automatic .env generation with backups
+
+### CLI Module Structure
+
+```
+cli/
+├── __init__.py           # Module initialization
+├── setup.py              # Main setup wizard
+├── validators.py         # Input validation functions
+├── connection_testers.py # API connection tests
+└── prompts.py            # Question definitions
+```
 
 ---
 
