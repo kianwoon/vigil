@@ -399,7 +399,7 @@ class TestRunner:
                 issues=[error_message],
             ),
             started_at=started_at,
-            completed_at=datetime.utcnow(),
-            duration_seconds=(datetime.utcnow() - started_at).total_seconds(),
+            completed_at=(completed_at := datetime.utcnow()),
+            duration_seconds=(completed_at - started_at).total_seconds(),
             error_message=error_message,
         )

@@ -181,7 +181,7 @@ class TeamsCommandProcessor:
 
             else:
                 return self._error_response(
-                    f"Unknown command: {command}\\n\\nSend /help for available commands."
+                    f"Unknown command: {command}\n\nSend /help for available commands."
                 )
 
         except Exception as e:

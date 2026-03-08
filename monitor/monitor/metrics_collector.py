@@ -220,7 +220,7 @@ class MetricsCollector:
             cpu_percent=cpu_percent,
             network_errors=self.network_errors.copy(),
             console_errors=self.console_errors.copy(),
-            console_warnings=[],  # Populated separately
+            console_warnings=self.console_warnings.copy(),
         )
 
         self.metrics_buffer.append(metrics)
