@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # Executor Service - Runs Playwright tests
+  executor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.executor
+    container_name: nanoclaw_executor
+    ports:
+      - "${EXECUTOR_PORT:-8001}:8001"
+    environment:
+      # Service configuration
+      - EXECUTOR_HOST=0.0.0.0
+      - EXECUTOR_PORT=8001
+      - EXECUTOR_LOG_LEVEL=${EXECUTOR_LOG_LEVEL:-INFO}
+
+      # Monitor WebSocket
+      - MONITOR_WS_URL=ws://monitor:8002
+
+      # Shared volume paths
+      - SHARED_SCRIPTS_DIR=/shared/scripts
+      - SHARED_RESULTS_DIR=/shared/results
+
+      # Browser settings
+      - BROWSER_HEADLESS=${BROWSER_HEADLESS:-true}
+      - EXECUTION_TIMEOUT_SECONDS=${EXECUTION_TIMEOUT_SECONDS:-300}
+
+    volumes:
+      # Mount shared volume for scripts and results
+      - ${SHARED_VOLUME_PATH:-./shared}:/shared
+      # Mount Playwright browser cache
+      - playwright_cache:/ms-playwright
+
+    networks:
+      - nanoclaw_network
+
+    depends_on:
+      - monitor
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Monitor Service - Browser health monitoring sidecar
+  monitor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.monitor
+    container_name: nanoclaw_monitor
+    ports:
+      - "${MONITOR_PORT:-8002}:8002"
+    environment:
+      # Service configuration
+      - MONITOR_HOST=0.0.0.0
+      - MONITOR_PORT=8002
+      - MONITOR_LOG_LEVEL=${MONITOR_LOG_LEVEL:-INFO}
+      - MONITOR_SAMPLE_INTERVAL_MS=${MONITOR_SAMPLE_INTERVAL_MS:-100}
+
+    networks:
+      - nanoclaw_network
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+    # Privileged mode for process monitoring
+    # Note: This may need adjustment based on your security requirements
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+
+  # Jira Integrator Service - Posts results to Jira
+  jira-integrator:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.jira
+    container_name: nanoclaw_jira
+    ports:
+      - "${JIRA_INTEGRATOR_PORT:-8003}:8003"
+    environment:
+      # Service configuration
+      - JIRA_INTEGRATOR_HOST=0.0.0.0
+      - JIRA_INTEGRATOR_PORT=8003
+      - JIRA_INTEGRATOR_LOG_LEVEL=${JIRA_INTEGRATOR_LOG_LEVEL:-INFO}
+
+      # Jira configuration
+      - JIRA_BASE_URL=${JIRA_BASE_URL}
+      - JIRA_EMAIL=${JIRA_EMAIL}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - JIRA_PROJECT_KEY=${JIRA_PROJECT_KEY:-QA}
+
+      # Shared volume paths
+      - SHARED_RESULTS_DIR=/shared/results
+
+    volumes:
+      # Mount shared volume for results
+      - ${SHARED_VOLUME_PATH:-./shared}:/shared
+
+    networks:
+      - nanoclaw_network
+
+    depends_on:
+      - executor
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  nanoclaw_network:
+    driver: bridge
+    name: ${DOCKER_NETWORK:-nanoclaw_network}
+
+volumes:
+  playwright_cache:
+    driver: local
