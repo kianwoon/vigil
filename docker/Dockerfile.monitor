@@ -1,4 +1,4 @@
-# NanoClaw Monitor Service
+# Vigil Monitor Service
 FROM python:3.11-slim
 
 # Set working directory
@@ -18,10 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY monitor/ /app/monitor/
 
 # Create non-root user
-RUN useradd -m -u 1000 nanoclaw && \
-    chown -R nanoclaw:nanoclaw /app
+RUN useradd -m -u 1000 vigil && \
+    chown -R vigil:vigil /app
 
-USER nanoclaw
+USER vigil
 
 # Expose port
 EXPOSE 8002

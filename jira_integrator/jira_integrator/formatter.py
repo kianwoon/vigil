@@ -1,5 +1,5 @@
 """
-Jira comment formatter for NanoClaw test results.
+Jira comment formatter for Vigil test results.
 
 Formats execution results into structured Jira comments.
 """

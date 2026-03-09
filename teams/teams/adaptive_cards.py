@@ -35,7 +35,7 @@ class AdaptiveCardBuilder:
             "body": [
                 {
                     "type": "TextBlock",
-                    "text": "NanoClaw Test Executor",
+                    "text": "Vigil Test Executor",
                     "size": "Large",
                     "weight": "Bolder"
                 },

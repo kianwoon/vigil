@@ -1,5 +1,5 @@
 """
-Test Runner for NanoClaw Role 2.
+Test Runner for Vigil.
 
 Orchestrates the full test execution lifecycle:
   1. Resolve script from shared volume

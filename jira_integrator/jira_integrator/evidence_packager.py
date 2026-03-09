@@ -1,5 +1,5 @@
 """
-Evidence packager for NanoClaw test executions.
+Evidence packager for Vigil test executions.
 
 Generates and organizes evidence packages for Jira attachments.
 """
@@ -164,7 +164,7 @@ class EvidencePackager:
         """
         with open(output_path, "w") as f:
             f.write("=" * 80 + "\n")
-            f.write("NanoClaw Execution Log\n")
+            f.write("Vigil Execution Log\n")
             f.write(f"Generated: {datetime.utcnow().isoformat()}\n")
             f.write("=" * 80 + "\n\n")
 

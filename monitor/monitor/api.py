@@ -218,9 +218,9 @@ async def clear_monitoring_data():
 async def root():
     """Root endpoint with API information."""
     return {
-        "service": "NanoClaw Monitor",
+        "service": "Vigil Monitor",
         "version": "1.0.0",
-        "description": "Browser health monitoring sidecar for NanoClaw executor",
+        "description": "Browser health monitoring sidecar for Vigil executor",
         "endpoints": {
             "health": "/health",
             "start_monitoring": "POST /api/v1/monitoring/start",

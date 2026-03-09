@@ -57,7 +57,7 @@ class MetricsWebSocketServer:
             # Send welcome message
             await websocket.send(json.dumps({
                 "type": "connected",
-                "message": "Connected to NanoClaw metrics stream",
+                "message": "Connected to Vigil metrics stream",
                 "timestamp": datetime.utcnow().isoformat(),
             }))
 

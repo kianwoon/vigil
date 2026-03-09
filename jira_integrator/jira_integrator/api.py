@@ -195,7 +195,7 @@ async def post_result_to_jira(request: PostResultRequest):
 async def root():
     """Root endpoint with API information."""
     return {
-        "service": "NanoClaw Jira Integrator",
+        "service": "Vigil Jira Integrator",
         "version": "1.0.0",
         "description": "Posts test results and evidence packages to Jira",
         "endpoints": {

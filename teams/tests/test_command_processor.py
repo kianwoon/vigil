@@ -258,7 +258,7 @@ class TestTeamsCommandProcessor:
         response = await processor.process_command(message)
 
         assert isinstance(response, TeamsResponse)
-        assert "NanoClaw Test Executor" in response.message
+        assert "Vigil Test Executor" in response.message
         assert "/run" in response.message
         assert "/status" in response.message
         assert "/results" in response.message
@@ -519,7 +519,7 @@ class TestTeamsCommandProcessor:
 
         response = await processor.process_command(message)
 
-        assert "NanoClaw" in response.message
+        assert "Vigil" in response.message
 
     @pytest.mark.asyncio
     async def test_process_whitespace_only_message(self, processor):
@@ -532,7 +532,7 @@ class TestTeamsCommandProcessor:
 
         response = await processor.process_command(message)
 
-        assert "NanoClaw" in response.message
+        assert "Vigil" in response.message
 
     @pytest.mark.asyncio
     async def test_command_case_insensitive(self, processor):
@@ -570,7 +570,7 @@ class TestTeamsCommandProcessor:
         assert "/results" in response.message
         assert "/list" in response.message
         assert "/help" in response.message
-        assert "NanoClaw" in response.message
+        assert "Vigil" in response.message
 
     def test_error_response_format(self, processor):
         """Test error response format."""

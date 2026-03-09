@@ -1,4 +1,4 @@
-# NanoClaw Executor Service
+# Vigil Executor Service
 FROM python:3.11-slim
 
 # Set working directory
@@ -30,10 +30,10 @@ ENV PYTHONUNBUFFERED=1
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # Create non-root user
-RUN useradd -m -u 1000 nanoclaw && \
-    chown -R nanoclaw:nanoclaw /app /shared
+RUN useradd -m -u 1000 vigil && \
+    chown -R vigil:vigil /app /shared
 
-USER nanoclaw
+USER vigil
 
 # Expose port
 EXPOSE 8001

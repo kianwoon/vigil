@@ -1,3 +1,3 @@
 """
-Test suite for NanoClaw Executor.
+Test suite for Vigil Executor.
 """

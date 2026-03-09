@@ -195,12 +195,12 @@ class TeamsCommandProcessor:
         if self.use_adaptive_cards and self.card_formatter:
             adaptive_card = self.card_formatter.format_help()
             return TeamsResponse(
-                message="NanoClaw Test Executor - Available Commands",
+                message="Vigil Test Executor - Available Commands",
                 response_type="adaptive_card",
                 adaptive_card=adaptive_card
             )
 
-        help_text = """**NanoClaw Test Executor**
+        help_text = """**Vigil Test Executor**
 
 Available commands:
 

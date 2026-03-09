@@ -1,5 +1,5 @@
 """
-Jira API client for NanoClaw.
+Jira API client for Vigil.
 
 Handles communication with Jira for posting comments and attachments.
 """

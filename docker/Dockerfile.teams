@@ -1,4 +1,4 @@
-# NanoClaw Teams Service
+# Vigil Teams Service
 FROM python:3.11-slim
 
 # Set working directory
@@ -16,10 +16,10 @@ COPY teams/__init__.py /app/teams/
 COPY executor/models.py /app/executor/models.py
 
 # Create non-root user
-RUN useradd -m -u 1000 nanoclaw && \
-    chown -R nanoclaw:nanoclaw /app
+RUN useradd -m -u 1000 vigil && \
+    chown -R vigil:vigil /app
 
-USER nanoclaw
+USER vigil
 
 # Expose port
 EXPOSE 8004

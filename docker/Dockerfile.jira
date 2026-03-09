@@ -1,4 +1,4 @@
-# NanoClaw Jira Integrator Service
+# Vigil Jira Integrator Service
 FROM python:3.11-slim
 
 # Set working directory
@@ -12,10 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY jira_integrator/ /app/jira_integrator/
 
 # Create non-root user
-RUN useradd -m -u 1000 nanoclaw && \
-    chown -R nanoclaw:nanoclaw /app
+RUN useradd -m -u 1000 vigil && \
+    chown -R vigil:vigil /app
 
-USER nanoclaw
+USER vigil
 
 # Expose port
 EXPOSE 8003

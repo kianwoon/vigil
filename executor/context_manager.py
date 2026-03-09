@@ -1,5 +1,5 @@
 """
-Browser Context Manager for NanoClaw Role 2.
+Browser Context Manager for Vigil.
 
 Manages isolated Playwright browser contexts for each test execution.
 Ensures a fresh browser state (no cookies, no cache) for every test.

@@ -1,5 +1,5 @@
 """
-Core data models for NanoClaw Role 2 (Intelligent Test Executor).
+Core data models for Vigil (Runtime Health Auditor).
 
 Shared models used across executor, monitor, and jira_integrator services.
 """
@@ -237,7 +237,7 @@ class JiraComment:
     def to_markdown(self) -> str:
         """Convert to markdown format for Jira comment."""
         return f"""---
-## NanoClaw Test Execution Report
+## Vigil Test Execution Report
 
 **Status:** {self.status_emoji} {self.status}
 **Health Grade:** {self.health_grade_emoji} {self.health_grade}

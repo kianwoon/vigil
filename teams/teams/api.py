@@ -211,9 +211,9 @@ async def trigger_execution(request: TriggerExecutionRequest):
 async def root():
     """Root endpoint with API information."""
     return {
-        "service": "NanoClaw Teams Integration",
+        "service": "Vigil Teams Integration",
         "version": "1.0.0",
-        "description": "Microsoft Teams bot interface for NanoClaw Test Executor",
+        "description": "Microsoft Teams bot interface for Vigil Test Executor",
         "endpoints": {
             "health": "/health",
             "webhook": "POST /api/v1/teams/webhook",

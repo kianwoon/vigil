@@ -1,5 +1,5 @@
 """
-NanoClaw Monitor Service - Main Entry Point.
+Vigil Monitor Service - Main Entry Point.
 
 Browser health monitoring sidecar that collects real-time metrics
 during test execution.
@@ -34,7 +34,7 @@ def main():
     host = os.getenv("MONITOR_HOST", "0.0.0.0")
     port = int(os.getenv("MONITOR_PORT", "8002"))
 
-    logger.info(f"Starting NanoClaw Monitor service on {host}:{port}")
+    logger.info(f"Starting Vigil Monitor service on {host}:{port}")
 
     try:
         uvicorn.run(

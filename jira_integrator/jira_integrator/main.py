@@ -1,5 +1,5 @@
 """
-NanoClaw Jira Integrator Service - Main Entry Point.
+Vigil Jira Integrator Service - Main Entry Point.
 
 Posts test results and evidence packages to Jira tickets.
 """
@@ -33,7 +33,7 @@ def main():
     host = os.getenv("JIRA_INTEGRATOR_HOST", "0.0.0.0")
     port = int(os.getenv("JIRA_INTEGRATOR_PORT", "8003"))
 
-    logger.info(f"Starting NanoClaw Jira Integrator service on {host}:{port}")
+    logger.info(f"Starting Vigil Jira Integrator service on {host}:{port}")
 
     try:
         uvicorn.run(

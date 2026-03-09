@@ -1,5 +1,5 @@
 #!/bin/bash
-# NanoClaw Executor Setup Script
+# Vigil Setup Script
 # Runs the interactive configuration wizard
 
 set -e
@@ -7,7 +7,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-echo "Starting NanoClaw Executor Setup Wizard..."
+echo "Starting Vigil Setup Wizard..."
 echo ""
 
 # Check if Python is available

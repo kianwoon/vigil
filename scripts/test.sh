@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# NanoClaw Role 2 Test Runner
+# Vigil Test Runner
 # Runs unit and integration tests with coverage reporting
 
 set -e  # Exit on error
@@ -23,7 +23,7 @@ print_msg() {
 print_header() {
     echo ""
     print_msg "$BLUE" "═══════════════════════════════════════════════════════"
-    print_msg "$BLUE" "  NanoClaw Role 2: Test Runner"
+    print_msg "$BLUE" "  Vigil: Test Runner"
     print_msg "$BLUE" "═══════════════════════════════════════════════════════"
     echo ""
 }

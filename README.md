@@ -199,8 +199,8 @@ JIRA_EMAIL=your.email@bank.com
 WHATSAPP_WEBHOOK_URL=https://your-webhook-url
 WHATSAPP_AUTH_TOKEN=your_token
 
-# Shared Volume (link to testforge)
-SHARED_VOLUME_PATH=/path/to/testforge/shared
+# Shared Volume (link to shared scripts)
+SHARED_VOLUME_PATH=/path/to/vigil/shared
 
 # Executor Settings
 EXECUTOR_HOST=0.0.0.0
@@ -425,7 +425,7 @@ async def test_login_invalid():
 
 ```
 ---
-## TestForge Test Execution Report
+## Vigil Test Execution Report
 
 **Status:** ✅ PASS
 **Health Grade:** ⚠️ WARNING

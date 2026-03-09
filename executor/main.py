@@ -1,7 +1,7 @@
 """
-NanoClaw Executor Service - Main Entry Point.
+Vigil Executor Service - Main Entry Point.
 
-Intelligent test executor with browser health monitoring.
+Runtime health auditor with browser health monitoring.
 """
 
 import os
@@ -33,7 +33,7 @@ def main():
     host = os.getenv("EXECUTOR_HOST", "0.0.0.0")
     port = int(os.getenv("EXECUTOR_PORT", "8001"))
 
-    logger.info(f"Starting NanoClaw Executor service on {host}:{port}")
+    logger.info(f"Starting Vigil Executor service on {host}:{port}")
 
     try:
         uvicorn.run(

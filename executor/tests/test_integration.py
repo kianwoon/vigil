@@ -1,5 +1,5 @@
 """
-Integration tests for NanoClaw Executor.
+Integration tests for Vigil Executor.
 
 Tests end-to-end workflows across components.
 """

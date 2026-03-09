@@ -6,7 +6,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.executor
-    container_name: nanoclaw_executor
+    container_name: vigil_executor
     ports:
       - "${EXECUTOR_PORT:-8001}:8001"
     environment:
@@ -33,7 +33,7 @@ services:
       - playwright_cache:/ms-playwright
 
     networks:
-      - nanoclaw_network
+      - vigil_network
 
     depends_on:
       - monitor
@@ -52,7 +52,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.monitor
-    container_name: nanoclaw_monitor
+    container_name: vigil_monitor
     ports:
       - "${MONITOR_PORT:-8002}:8002"
     environment:
@@ -63,7 +63,7 @@ services:
       - MONITOR_SAMPLE_INTERVAL_MS=${MONITOR_SAMPLE_INTERVAL_MS:-100}
 
     networks:
-      - nanoclaw_network
+      - vigil_network
 
     restart: unless-stopped
 
@@ -86,7 +86,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.jira
-    container_name: nanoclaw_jira
+    container_name: vigil_jira
     ports:
       - "${JIRA_INTEGRATOR_PORT:-8003}:8003"
     environment:
@@ -109,7 +109,7 @@ services:
       - ${SHARED_VOLUME_PATH:-./shared}:/shared
 
     networks:
-      - nanoclaw_network
+      - vigil_network
 
     depends_on:
       - executor
@@ -128,7 +128,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.teams
-    container_name: nanoclaw_teams
+    container_name: vigil_teams
     ports:
       - "${TEAMS_PORT:-8004}:8004"
     environment:
@@ -153,7 +153,7 @@ services:
       - ${SHARED_VOLUME_PATH:-./shared}:/shared
 
     networks:
-      - nanoclaw_network
+      - vigil_network
 
     depends_on:
       - executor
@@ -169,9 +169,9 @@ services:
       start_period: 5s
 
 networks:
-  nanoclaw_network:
+  vigil_network:
     driver: bridge
-    name: ${DOCKER_NETWORK:-nanoclaw_network}
+    name: ${DOCKER_NETWORK:-vigil_network}
 
 volumes:
   playwright_cache:

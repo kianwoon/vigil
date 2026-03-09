@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# NanoClaw Role 2 Setup Script
-# Intelligent Test Executor with Browser Health Monitoring
+# Vigil Setup Script
+# Runtime Health Auditor with Browser Health Monitoring
 
 set -e  # Exit on error
 
@@ -23,7 +23,7 @@ print_msg() {
 print_header() {
     echo ""
     print_msg "$BLUE" "═══════════════════════════════════════════════════════"
-    print_msg "$BLUE" "  NanoClaw Role 2: Intelligent Test Executor Setup"
+    print_msg "$BLUE" "  Vigil: Runtime Health Auditor Setup"
     print_msg "$BLUE" "═══════════════════════════════════════════════════════"
     echo ""
 }
@@ -175,7 +175,7 @@ build_images() {
 
 # Start services
 start_services() {
-    print_msg "$YELLOW" "▶ Starting NanoClaw services..."
+    print_msg "$YELLOW" "▶ Starting Vigil services..."
 
     cd docker
 

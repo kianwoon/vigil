@@ -162,7 +162,7 @@ class WhatsAppCommandProcessor:
 
     def _help_response(self, recipient: str) -> WhatsAppResponse:
         """Generate help message."""
-        help_text = """🤖 *NanoClaw Test Executor*
+        help_text = """🤖 *Vigil Test Executor*
 
 Available commands:
 

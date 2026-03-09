@@ -143,7 +143,7 @@ class TestWhatsAppCommandProcessor:
 
         assert isinstance(response, WhatsAppResponse)
         assert response.recipient == "+1234567890"
-        assert "NanoClaw Test Executor" in response.message
+        assert "Vigil Test Executor" in response.message
         assert "/run" in response.message
         assert "/status" in response.message
 
@@ -319,7 +319,7 @@ class TestWhatsAppCommandProcessor:
         response = await processor.process_command(message)
 
         # Should return help message
-        assert "NanoClaw" in response.message
+        assert "Vigil" in response.message
 
     def test_help_response_format(self, processor):
         """Test help response contains all commands."""
@@ -330,7 +330,7 @@ class TestWhatsAppCommandProcessor:
         assert "/results" in response.message
         assert "/list" in response.message
         assert "/help" in response.message
-        assert "NanoClaw" in response.message
+        assert "Vigil" in response.message
 
     def test_error_response_format(self, processor):
         """Test error response format."""

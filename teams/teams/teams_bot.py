@@ -1,5 +1,5 @@
 """
-Microsoft Teams Bot for NanoClaw Test Executor.
+Microsoft Teams Bot for Vigil Test Executor.
 
 Handles incoming Teams messages and orchestrates command processing.
 """
@@ -75,7 +75,7 @@ class TeamsBot(ActivityHandler):
             turn_context: The turn context for this activity
         """
         # Send welcome message when bot is added
-        welcome_text = """Welcome to NanoClaw Test Executor Bot!
+        welcome_text = """Welcome to Vigil Test Executor Bot!
 
 Available commands:
 - /run {job_id} - Execute a test

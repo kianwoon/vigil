@@ -1,4 +1,4 @@
-# Role 2 Implementation Plan
+# Vigil Implementation Plan
 
 **Date:** 2026-03-08
 **Status:** Complete
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document outlines the implementation of **NanoClaw Role 2: Intelligent Test Executor**, a runtime auditor that goes beyond simple test execution to monitor browser health during test runs.
+This document outlines the implementation of **Vigil: Runtime Health Auditor**, a runtime auditor that goes beyond simple test execution to monitor browser health during test runs.
 
 ---
 
@@ -23,7 +23,7 @@ This document outlines the implementation of **NanoClaw Role 2: Intelligent Test
         ┌───────────────────────┴───────────────────────┐
         │                                               │
 ┌───────▼──────────┐                         ┌────────▼────────┐
-│  Role 2 Executor │◄────metrics─────────│  Monitor Sidecar│
+│  Vigil Executor  │◄────metrics─────────│  Monitor Sidecar│
 │  - pytest runner │                         │  - CPU/Memory   │
 │  - trace capture│   ┌──────────────────┐  │  - Network      │
 │  - log merge    │───│  Jira Integrator│  │  - Console      │
@@ -109,7 +109,7 @@ This document outlines the implementation of **NanoClaw Role 2: Intelligent Test
 **Jira Comment Format:**
 ```markdown
 ---
-## NanoClaw Test Execution Report
+## TestForge Test Execution Report
 
 **Status:** ✅ PASS
 **Health Grade:** ⚠️ WARNING
@@ -144,7 +144,7 @@ This document outlines the implementation of **NanoClaw Role 2: Intelligent Test
 **Features:**
 - ✓ Multi-container orchestration
 - ✓ Shared volume for scripts and results
-- ✓ Isolated network (nanoclaw_network)
+- ✓ Isolated network (vigil_network)
 - ✓ Health checks for all services
 - ✓ Proper user permissions (non-root containers)
 - ✓ Playwright browser cache volume
@@ -198,7 +198,7 @@ This document outlines the implementation of **NanoClaw Role 2: Intelligent Test
 
 ### 1. Setup
 ```bash
-cd /Users/kianwoonwong/Downloads/qa-swarm-executor
+cd /path/to/vigil
 ./scripts/setup.sh
 ```
 
@@ -230,7 +230,7 @@ curl -X POST http://localhost:8001/api/v1/execute \
 ## Directory Structure
 
 ```
-qa-swarm-executor/
+vigil/
 ├── executor/                    # Test execution service
 │   ├── executor/
 │   │   ├── runner.py           # pytest execution
@@ -260,7 +260,7 @@ qa-swarm-executor/
 │   └── tests/
 │
 ├── shared/                      # Shared volume
-│   ├── scripts/                 # Input from Role 1
+│   ├── scripts/                 # Input from testforge
 │   ├── results/                 # Execution outputs
 │   ├── traces/                  # Playwright traces
 │   └── metrics/                 # CSV metrics

@@ -1,5 +1,5 @@
 """
-NanoClaw Executor CLI
+Vigil CLI
 
 Interactive command-line interface for configuration and management.
 """
